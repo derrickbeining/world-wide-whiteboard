@@ -10,24 +10,30 @@ var server = app.listen(1337, function () {
 });
 var io = socketio(server);
 
-io.on('connection', function (socket) {
-    /* This function receives the newly connected socket.
-       This function will be called for EACH browser that connects to our server. */
-    console.log('A new client has connected!');
-    console.log(socket.id);
-    socket.on('disconnect', function () {
-        console.log('socket disconnected')
-    })
-
-    socket.on('drawing', function (...payload) {
-
-        socket.broadcast.emit('someoneDrew', ...payload)
-    })
-});
-
-
+app.use('/turing-hall', require('./browser'));
 app.use(express.static(path.join(__dirname, 'browser')));
 // app.use(express.static(path.join(__dirname, 'socket.io')));
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+app.get('/turing-hall', function(req,res){
+    io.on('connection', function (socket) {
+        /* This function receives the newly connected socket.
+           This function will be called for EACH browser that connects to our server. */
+        console.log('A new client has connected!');
+        console.log(socket.id);
+        socket.on('disconnect', function () {
+            console.log('socket disconnected')
+        })
+
+
+
+        socket.join('turing-hall');
+
+        socket.on('drawing', function (...payload) {
+
+            socket.broadcast.emit('someoneDrew', ...payload)
+        })
+    });
+
 });
