@@ -1,39 +1,39 @@
 var path = require('path');
 var express = require('express');
-var app = express(); // the app returned by express() is a JavaScript Function. Not something we can pass to our sockets!
+var app = express();
 var socketio = require('socket.io');
-
-// app.listen() returns an http.Server object
-// http://expressjs.com/en/4x/api.html#app.listen
 var server = app.listen(1337, function () {
     console.log('The server is listening on port 1337!');
 });
 var io = socketio(server);
 
-app.use('/turing-hall', require('./browser'));
 app.use(express.static(path.join(__dirname, 'browser')));
 // app.use(express.static(path.join(__dirname, 'socket.io')));
-app.get('/', function (req, res) {
+
+app.get('*', function (req, res) {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
-app.get('/turing-hall', function(req,res){
-    io.on('connection', function (socket) {
-        /* This function receives the newly connected socket.
-           This function will be called for EACH browser that connects to our server. */
-        console.log('A new client has connected!');
-        console.log(socket.id);
-        socket.on('disconnect', function () {
-            console.log('socket disconnected')
-        })
 
+const drawingHistory = {};
 
+io.on('connection', function (socket) {
+    console.log('A new client has connected!', socket.id);
 
-        socket.join('turing-hall');
+    let room = null
+    socket.on('requestToJoinRoom', function (roomName) {
+        room = roomName
+        socket.join(roomName)
+        if (!drawingHistory[ roomName ]) {
+            drawingHistory[ roomName ] = []
+        }
+        socket.emit('drawingHistory', drawingHistory[ roomName ])
+    })
 
-        socket.on('drawing', function (...payload) {
-
-            socket.broadcast.emit('someoneDrew', ...payload)
-        })
-    });
-
+    socket.on('drawing', function (start, end, color) {
+        drawingHistory[ room ].push({ start: start, end: end, color: color })
+        socket.broadcast.to(room).emit('someoneElseDrawing', start, end, color)
+    })
+    socket.on('disconnect', function () {
+        console.log('socket ' + socket.id + ' disconnected')
+    })
 });
