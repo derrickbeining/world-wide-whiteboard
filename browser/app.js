@@ -1,6 +1,6 @@
 /* global whiteboard io */
 
-var socket = io(window.location.origin);
+const socket = io(window.location.origin);
 
 socket.on('connect', function () {
     console.log('Persistent connection established with server');

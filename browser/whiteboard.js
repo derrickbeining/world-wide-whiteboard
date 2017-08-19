@@ -3,10 +3,10 @@ window.whiteboard = new window.EventEmitter();
 (function () {
 
     // Ultimately, the color of our stroke;
-    var color;
+    let color;
 
     // The color selection elements on the DOM.
-    var colorElements = [].slice.call(document.querySelectorAll('.marker'));
+    const colorElements = [].slice.call(document.querySelectorAll('.marker'));
 
     colorElements.forEach(function (el) {
 
@@ -14,7 +14,7 @@ window.whiteboard = new window.EventEmitter();
         // to its id (purple, red, blue, etc).
         el.style.backgroundColor = el.id;
 
-        // Attach a click handler that will set our color variable to
+        // Attach a click handler that will set our color constiable to
         // the elements id, remove the selected class from all colors,
         // and then add the selected class to the clicked color.
         el.addEventListener('click', function () {
@@ -25,9 +25,9 @@ window.whiteboard = new window.EventEmitter();
 
     });
 
-    var canvas = document.getElementById('paint');
+    const canvas = document.getElementById('paint');
 
-    var ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d')
 
     function resize () {
         // Unscale the canvas (if it was previously scaled)
@@ -35,16 +35,16 @@ window.whiteboard = new window.EventEmitter();
 
         // The device pixel ratio is the multiplier between CSS pixels
         // and device pixels
-        var pixelRatio = window.devicePixelRatio || 1;
+        const pixelRatio = window.devicePixelRatio || 1;
 
         // Allocate backing store large enough to give us a 1:1 device pixel
         // to canvas pixel ratio.
-        var w = canvas.clientWidth * pixelRatio,
+        const w = canvas.clientWidth * pixelRatio,
             h = canvas.clientHeight * pixelRatio;
         if (w !== canvas.width || h !== canvas.height) {
             // Resizing the canvas destroys the current content.
             // So, save it...
-            var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
             canvas.width = w; canvas.height = h;
 
@@ -65,17 +65,17 @@ window.whiteboard = new window.EventEmitter();
     resize()
     window.addEventListener('resize', resize)
 
-    var currentMousePosition = {
+    const currentMousePosition = {
         x: 0,
         y: 0
     };
 
-    var lastMousePosition = {
+    const lastMousePosition = {
         x: 0,
         y: 0
     };
 
-    var drawing = false;
+    let drawing = false;
 
     canvas.addEventListener('mousedown', function (e) {
         drawing = true;
